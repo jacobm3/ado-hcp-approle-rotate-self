@@ -25,3 +25,31 @@ export VAULT_TOKEN=$(vault write -field=token auth/approle/login \
   secret_id=63d48504-eb33-26e7-acfc-2f20341f77d6) 
 vault write -f auth/approle/role/vault-pipeline/secret-id
 
+
+# Existing secret ID accessors can be listed like this - 
+vault list auth/approle/role/vault-pipeline/secret-id
+
+# Individual accessors can be read like this - 
+vault write auth/approle/role/vault-pipeline/secret-id-accessor/lookup secret_id_accessor=1c62e8e4-c66c-f190-ce4f-47db8266bf94
+Key                   Value
+---                   -----
+cidr_list             <nil>
+creation_time         2021-12-09T06:30:25.973346132Z
+expiration_time       0001-01-01T00:00:00Z
+last_updated_time     2021-12-09T13:55:19.339133055Z
+metadata              map[]
+secret_id_accessor    1c62e8e4-c66c-f190-ce4f-47db8266bf94
+secret_id_num_uses    7
+secret_id_ttl         0s
+token_bound_cidrs     []
+
+# Delete an existing secret-id by its accessor
+vault write auth/approle/role/vault-pipeline/secret-id-accessor/destroy \
+  secret_id_accessor=1c62e8e4-c66c-f190-ce4f-47db8266bf94
+
+# Delete all secret-ids
+for x in $(vault list -format=json auth/approle/role/vault-pipeline/secret-id | jq -r '.[]'); do
+  vault write auth/approle/role/vault-pipeline/secret-id-accessor/destroy \
+    secret_id_accessor=$x
+done
+
