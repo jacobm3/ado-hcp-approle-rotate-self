@@ -20,6 +20,9 @@ path "auth/approle/role/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadat
 EOF
 
 vault policy write secret-by-role-name - << EOF
+path "secret/data/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadata.role_name}}" {
+  capabilities = [ "read","create","update","delete","list" ]
+}
 path "secret/data/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadata.role_name}}/*" {
   capabilities = [ "read","create","update","delete","list" ]
 }
