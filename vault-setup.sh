@@ -12,6 +12,9 @@ vault write -f auth/approle/role/vault-pipeline/secret-id
 # substitute your correct approle mount accessor (from: vault auth list)
 vault policy write rotate-own-secret-id - << EOF
 path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metadata.role_name}}/secret-id" {
+  capabilities = [ "read","create","update" ]
+}
+path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metadata.role_name}}/secret-id/destroy" {
   capabilities = [ "read","create","update","delete" ]
 }
 EOF
