@@ -7,7 +7,7 @@ vault write auth/approle/role/vault-pipeline \
     token_max_ttl=30m \
     secret_id_num_uses=1 \
     secret_id_ttl=44640m \
-    token_policies="rotate-own-secret-id"
+    token_policies="rotate-own-secret-id,secret-by-role-name"
 
 vault read auth/approle/role/vault-pipeline/role-id
 vault write -f auth/approle/role/vault-pipeline/secret-id
