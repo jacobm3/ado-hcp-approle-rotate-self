@@ -8,6 +8,10 @@ steps:
 - bash: |
     set -x
     set -e
+    ###########################################################################
+    # Boilerplate
+    ###########################################################################
+    
     #echo "Examining pipeline variables:"
     #az pipelines variable list --pipeline-name=vault-pipeline
 
@@ -32,9 +36,20 @@ steps:
     echo "Rotating to new secret_id: $NEW_SECRET "
     az pipelines variable update --pipeline-name=vault-pipeline --name=APPROLE_SECRET_ID --value=$NEW_SECRET
 
+    ###########################################################################
+    # Do pipeline work here
+    ###########################################################################
+    
+
     # Retrieve secrets from Vault
     vault kv get secret/vault-pipeline/test
 
+
+
+    ###########################################################################
+    # Clean up
+    ###########################################################################
+    
     # Revoke token when done
     vault token revoke -self
 
