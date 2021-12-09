@@ -1,20 +1,26 @@
 vault auth enable approle
+
+# 44640m = 31 days
 vault write auth/approle/role/vault-pipeline \
     token_num_uses=10 \
-    token_ttl=20m \
+    token_ttl=60m \
     token_max_ttl=30m \
     secret_id_num_uses=1 \
-	token_policies="rotate-own-secret-id"
-	
+    secret_id_ttl=44640m \
+    token_policies="rotate-own-secret-id"
+
 vault read auth/approle/role/vault-pipeline/role-id
 vault write -f auth/approle/role/vault-pipeline/secret-id
 
 # substitute your correct approle mount accessor (from: vault auth list)
 vault policy write rotate-own-secret-id - << EOF
-path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metadata.role_name}}/secret-id" {
+path "auth/approle/role/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadata.role_name}}/secret-id" {
   capabilities = [ "read","create","update" ]
 }
-path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metadata.role_name}}/secret-id/destroy" {
+EOF
+
+vault policy write secret-by-role-name - << EOF
+path "secret/data/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadata.role_name}}/*" {
   capabilities = [ "read","create","update","delete","list" ]
 }
 EOF
@@ -53,3 +59,5 @@ for x in $(vault list -format=json auth/approle/role/vault-pipeline/secret-id | 
     secret_id_accessor=$x
 done
 
+# Revoke the Vault token once no longer needed in the pipeline
+vault token revoke -self
