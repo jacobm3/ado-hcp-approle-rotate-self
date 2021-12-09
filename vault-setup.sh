@@ -4,7 +4,7 @@ vault auth enable approle
 vault write auth/approle/role/vault-pipeline \
     token_num_uses=10 \
     token_ttl=60m \
-    token_max_ttl=30m \
+    token_max_ttl=44640m \
     secret_id_num_uses=1 \
     secret_id_ttl=44640m \
     token_policies="rotate-own-secret-id,secret-by-role-name"
