@@ -15,7 +15,7 @@ path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metada
   capabilities = [ "read","create","update" ]
 }
 path "auth/approle/role/{{identity.entity.aliases.<auth_approle_51dba4f3>.metadata.role_name}}/secret-id/destroy" {
-  capabilities = [ "read","create","update","delete" ]
+  capabilities = [ "read","create","update","delete","list" ]
 }
 EOF
 
