@@ -7,6 +7,7 @@ pool:
 steps: 
 - bash: |
     set -x
+    set -e
     #echo "Examining pipeline variables:"
     #az pipelines variable list --pipeline-name=vault-pipeline
 
@@ -19,14 +20,23 @@ steps:
 
     #az pipelines variable update --pipeline-name=vault-pipeline --name APPROLE_SECRET --value=123456
 
+    # Login with AppRole from env vars
     export VAULT_TOKEN=$(vault write -field=token auth/approle/login \
                            role_id=$APPROLE_ID secret_id=$APPROLE_SECRET_ID)
     vault token lookup
+
+    # Generate a new secret ID
     NEW_SECRET=$(vault write -field=secret_id -f auth/approle/role/vault-pipeline/secret-id)
     
+    # Save the new AppRole secret ID back into the pipeline for next time
     echo "Rotating to new secret_id: $NEW_SECRET "
     az pipelines variable update --pipeline-name=vault-pipeline --name=APPROLE_SECRET_ID --value=$NEW_SECRET
 
+    # Retrieve secrets from Vault
+    vault kv get secret/vault-pipeline/test
+
+    # Revoke token when done
+    vault token revoke -self
 
   env:
     AZURE_DEVOPS_EXT_PAT: $(System.AccessToken)
