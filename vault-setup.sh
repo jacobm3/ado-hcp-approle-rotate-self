@@ -1,5 +1,11 @@
 vault auth enable approle
 
+# tune audit log
+vault auth tune \
+  -audit-non-hmac-response-keys=error \
+  -audit-non-hmac-request-keys=role_id \
+  approle
+
 # 44640m = 31 days
 vault write auth/approle/role/vault-pipeline \
     token_num_uses=10 \
