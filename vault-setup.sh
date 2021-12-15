@@ -18,7 +18,7 @@ vault write auth/approle/role/vault-pipeline \
 # retrieve approle ID
 vault read auth/approle/role/vault-pipeline/role-id
 
-# generate the initial secret ID
+# generate the initial one-time secret ID, or regenerate if needed
 vault write -f auth/approle/role/vault-pipeline/secret-id
 
 # substitute your correct approle mount accessor (from: vault auth list)
@@ -27,6 +27,8 @@ path "auth/approle/role/{{identity.entity.aliases.APPROLE_MOUNT_ACCESSOR.metadat
   capabilities = [ "read","create","update" ]
 }
 EOF
+
+vault policy read rotate-own-secret-id
 
 vault policy write secret-by-role-name - << EOF
 path "secret/data/{{identity.entity.aliases.auth_approle_51dba4f3.metadata.role_name}}" {
